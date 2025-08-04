@@ -1,5 +1,7 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
+import { google } from '@ai-sdk/google';
+import { streamText } from 'ai';
 
 /**
  * Education Tool: A universal teaching tool for all topics, all audiences, and all teaching formats.
@@ -21,25 +23,27 @@ export const educationTool = createTool({
     followUpSuggestions: z.array(z.string()).optional().describe('Suggested next questions or learning steps'),
   }),
   execute: async ({ context }) => {
-    // Placeholder for real AI/LLM teaching output.
     const { topic, audience, format, goals, language } = context;
 
-    // This demo logic can be replaced by an actual LLM/curriculum API call.
-    let intro = `Teaching about "${topic}"`;
-    if (audience) intro += ` for ${audience}`;
-    intro += ` as a ${format}.`;
-    if (goals) intro += ` Learning goals: ${goals}.`;
-    if (language) intro += ` Language: ${language}.`;
+    const { text, usage } = await streamText({
+      model: google(process.env.MODEL ?? 'gemini-1.5-pro'),
+      prompt: `
+        Teach about "${topic}"
+        ${audience ? ` for ${audience}` : ''}
+        ${format ? ` as a ${format}` : ''}
+        ${goals ? ` with the learning goals: ${goals}` : ''}
+        ${language ? ` in ${language}` : ''}
+      `,
+    });
 
-    let suggestions = [
+    const suggestions = [
       `Would you like a quiz about ${topic}?`,
       `Need deeper examples on ${topic}?`,
       `Shall I summarize this topic for you?`
     ];
-    if (format === 'quiz') suggestions = [`Want to review the answers or get an explanation for any question?`];
 
     return {
-      response: intro + ' (Replace this with AI-generated content.)',
+      response: text,
       followUpSuggestions: suggestions,
     };
   },
