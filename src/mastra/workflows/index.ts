@@ -1,5 +1,6 @@
-import { createWorkflow } from '@mastra/core/workflow';
+import { createWorkflow } from '@mastra/core';
 import { educationTool } from '../tools';
+import { z } from 'zod';
 
 /**
  * Teach Workflow: Provides a comprehensive and adaptive teaching session.
@@ -9,11 +10,13 @@ import { educationTool } from '../tools';
 export const teachWorkflow = createWorkflow({
   id: 'teach-workflow',
   description: 'A universal teaching workflow that customizes lessons, explanations, and quizzes for any topic and audience.',
+  inputSchema: educationTool.inputSchema,
+  outputSchema: educationTool.outputSchema,
   steps: [
     {
       id: 'clarify-audience',
       description: 'Ensure the learner’s profile is clarified for better personalization.',
-      handler: async (input, context) => {
+      handler: (input: any, context: any) => {
         if (!input.audience) {
           return {
             prompt: 'Could you tell me about the intended audience or your background? For example, age, experience level, or learning goals.',
@@ -26,7 +29,7 @@ export const teachWorkflow = createWorkflow({
     {
       id: 'clarify-topic',
       description: 'Ensure that the subject matter is defined.',
-      handler: async (input, context) => {
+      handler: (input: any, context: any) => {
         if (!input.topic) {
           return {
             prompt: 'What specific topic would you like to learn about?',
@@ -39,10 +42,10 @@ export const teachWorkflow = createWorkflow({
     {
       id: 'clarify-format',
       description: 'Confirm the preferred learning format (e.g., explanation, lesson, quiz, summary).',
-      handler: async (input, context) => {
+      handler: (input: any, context: any) => {
         if (!input.format) {
           return {
-            prompt: 'Which format would you prefer? (Choose from: "explanation", "lesson", "quiz", "summary")',
+            prompt: 'Which format would you prefer? (Choose from: "explanation", "lesson", "summary")',
             needed: 'format',
           };
         }
@@ -52,34 +55,31 @@ export const teachWorkflow = createWorkflow({
     {
       id: 'teach',
       description: 'Deliver a tailored teaching lesson using the education tool.',
-      handler: async (input, context) => {
-        try {
-          const { topic, audience, format = 'lesson', goals, language } = input;
-          const result = await educationTool.execute({
+      handler: (input: any, context: any) => {
+        const { topic, audience, format = 'lesson', goals, language } = input;
+        const result = educationTool.execute(
+          {
             topic,
             audience,
             format,
             goals,
             language,
-          });
-          // Return the teaching message and follow-up suggestions.
-          return {
-            message: result.response,
-            followUp: result.followUpSuggestions ?? [],
-          };
-        } catch (error) {
-          return {
-            message: 'I encountered an error while preparing the lesson. Please try again later or adjust your request.',
-          };
-        }
+          },
+          { runtimeContext: context.runtimeContext }
+        );
+
+        // Return the teaching message and follow-up suggestions.
+        return {
+          message: result.response,
+          followUp: result.followUpSuggestions ?? [],
+        };
       },
     },
     {
       id: 'follow-up',
       description: 'Offer follow-up actions to further engage and deepen understanding.',
-      handler: async (input, context) => {
+      handler: (input: any, context: any) => {
         const followUpOptions = [
-          'Take a Quiz',
           'Request More Examples',
           'Explore Related Topics',
           'Finish Session',

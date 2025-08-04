@@ -1,15 +1,14 @@
-# Teacher Agent Template
+# Teacher Agent
 
-This is a template project that demonstrates how to create a teacher agent using the Mastra framework. The agent can provide thousands of lessons to users. 
+This project is a teacher agent that can provide thousands of lessons to users. It is built using the Mastra framework.
 
-## Overview
+## Features
 
-The Teacher Agent template showcases how to:
-
-- Create an AI-powered teacher agent using Mastra framework
-- Implement education-related workflows
-- Handle user queries about anything, as long as teaching is being done
-- Integrate with Google's API for natural language processing
+- **Teacher Agent**: An AI-powered teacher agent that can teach any topic to any audience.
+- **Lesson Plan Workflow**: A workflow that can create a lesson plan for a given topic.
+- **Frontend**: A simple frontend built with Next.js and React that allows users to interact with the agent through a web interface.
+- **Google Generative AI Integration**: The agent is integrated with the Google Generative AI API to provide comprehensive and up-to-date information.
+- **CI/CD Pipeline**: A simple CI/CD pipeline using GitHub Actions that builds the project on every push to the `main` branch.
 
 ## Setup
 
@@ -17,6 +16,8 @@ The Teacher Agent template showcases how to:
 2. Install dependencies: `pnpm install`
 3. Run the project: `pnpm dev`.
 
+The frontend will be available at `http://localhost:3000`.
+
 ## Environment Variables
 
-- `GOOGLE_GENERATIVE_AI_API_KEY`: Your Google API key. [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+- `GOOGLE_GENERATIVE_AI_API_KEY`: Your Google API key. You can get one from the [Google AI Studio](https://makersuite.google.com/).

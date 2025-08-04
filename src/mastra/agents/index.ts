@@ -1,5 +1,5 @@
-import { google } from '@ai-sdk/google';
-import { Agent } from '@mastra/core/agent';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { Agent } from '@mastra/core';
 import { educationTool } from '../tools';
 
 export const teacherAgent = new Agent({
@@ -15,6 +15,6 @@ export const teacherAgent = new Agent({
     - Always use the educationTool for facts.
     - Be positive and supportive.
   `,
-  model: google(process.env.MODEL ?? "gemini-1.5-pro"),
+  model: createGoogleGenerativeAI()(process.env.MODEL ?? "gemini-1.5-pro"),
   tools: { educationTool },
 });
