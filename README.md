@@ -4,11 +4,11 @@ This is a template project that demonstrates how to create a weather agent using
 
 ## Overview
 
-The Weather Agent template showcases how to:
+The Teacher Agent template showcases how to:
 
-- Create an AI-powered agent using Mastra framework
-- Implement weather-related workflows
-- Handle user queries about weather conditions
+- Create an AI-powered teacher agent using Mastra framework
+- Implement education-related workflows
+- Handle user queries about anything, as long as teaching is being done
 - Integrate with Google's API for natural language processing
 
 ## Setup
