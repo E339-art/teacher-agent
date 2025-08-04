@@ -1,6 +1,6 @@
-# Weather Agent Template
+# Teacher Agent Template
 
-This is a template project that demonstrates how to create a weather agent using the Mastra framework. The agent can provide weather information and forecasts based on user queries.
+This is a template project that demonstrates how to create a teacher agent using the Mastra framework. The agent can provide thousands of lessons to users. 
 
 ## Overview
 
