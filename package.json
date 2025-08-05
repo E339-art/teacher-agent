@@ -1,16 +1,19 @@
 {
-  "name": "weather-agent",
+  "name": "teacher-agent",
   "version": "1.0.0",
   "main": "index.js",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "mastra dev"
+    "dev": "mastra dev",
+    "build": "tsc && mastra build",
+    "test": "mastra test",
+    "start": "mastra start",
+    "deploy": "mastra deploy"
   },
-  "keywords": [],
+  "keywords": ["education", "teaching", "ai", "mastra"],
   "author": "",
   "license": "ISC",
-  "description": "One Agent, one Workflow and one Tool to bring you the weather in your city.",
+  "description": "An intelligent AI teacher agent that provides personalized education across all subjects and skill levels.",
   "type": "module",
   "dependencies": {
     "@mastra/core": "latest",
