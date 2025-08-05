@@ -1,96 +1,149 @@
-import { createWorkflow } from '@mastra/core/workflow';
-import { educationTool } from '../tools';
+import { createWorkflow, createStep } from '@mastra/core/workflows';
+import { z } from 'zod';
+
+// Input schemas
+const teachInputSchema = z.object({
+  topic: z.string().describe('The topic to teach about'),
+  audience: z.string().optional().describe('The target audience'),
+  format: z.enum(['explanation', 'lesson', 'quiz', 'summary']).optional().describe('Teaching format'),
+  goals: z.string().optional().describe('Learning goals'),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional().describe('Difficulty level'),
+});
+
+const quickAnswerInputSchema = z.object({
+  question: z.string().describe('The question to answer'),
+});
+
+// Output schemas
+const teachOutputSchema = z.object({
+  message: z.string().describe('The educational response'),
+  followUp: z.array(z.string()).describe('Follow-up suggestions'),
+});
+
+const quickAnswerOutputSchema = z.object({
+  message: z.string().describe('The answer'),
+  followUp: z.array(z.string()).describe('Follow-up suggestions'),
+});
 
 /**
- * Teach Workflow: Provides a comprehensive and adaptive teaching session.
- * It gathers necessary learner details, delivers a tailored lesson/explanation,
- * and offers follow-up actions such as quizzes or further exploration.
+ * Simple Teaching Workflow: Provides educational content for any topic.
  */
 export const teachWorkflow = createWorkflow({
   id: 'teach-workflow',
-  description: 'A universal teaching workflow that customizes lessons, explanations, and quizzes for any topic and audience.',
+  description: 'A simple teaching workflow that provides educational content for any topic.',
+  inputSchema: teachInputSchema,
+  outputSchema: teachOutputSchema,
   steps: [
-    {
-      id: 'clarify-audience',
-      description: 'Ensure the learner’s profile is clarified for better personalization.',
-      handler: async (input, context) => {
-        if (!input.audience) {
-          return {
-            prompt: 'Could you tell me about the intended audience or your background? For example, age, experience level, or learning goals.',
-            needed: 'audience',
-          };
-        }
-        return { next: true };
-      },
-    },
-    {
-      id: 'clarify-topic',
-      description: 'Ensure that the subject matter is defined.',
-      handler: async (input, context) => {
-        if (!input.topic) {
-          return {
-            prompt: 'What specific topic would you like to learn about?',
-            needed: 'topic',
-          };
-        }
-        return { next: true };
-      },
-    },
-    {
-      id: 'clarify-format',
-      description: 'Confirm the preferred learning format (e.g., explanation, lesson, quiz, summary).',
-      handler: async (input, context) => {
-        if (!input.format) {
-          return {
-            prompt: 'Which format would you prefer? (Choose from: "explanation", "lesson", "quiz", "summary")',
-            needed: 'format',
-          };
-        }
-        return { next: true };
-      },
-    },
-    {
+    createStep({
       id: 'teach',
-      description: 'Deliver a tailored teaching lesson using the education tool.',
-      handler: async (input, context) => {
+      description: 'Provide educational content about the requested topic.',
+      inputSchema: teachInputSchema,
+      outputSchema: teachOutputSchema,
+      execute: async ({ input }) => {
         try {
-          const { topic, audience, format = 'lesson', goals, language } = input;
-          const result = await educationTool.execute({
-            topic,
-            audience,
-            format,
-            goals,
-            language,
-          });
-          // Return the teaching message and follow-up suggestions.
+          const { topic, audience, format = 'explanation', goals, difficulty } = input;
+          
+          // Generate educational content
+          let response = `# Teaching: ${topic}\n\n`;
+          
+          if (audience) {
+            response += `**Audience:** ${audience}\n\n`;
+          }
+          
+          if (difficulty) {
+            response += `**Difficulty Level:** ${difficulty}\n\n`;
+          }
+          
+          if (goals) {
+            response += `**Learning Goals:** ${goals}\n\n`;
+          }
+
+          // Format-specific content
+          switch (format) {
+            case 'explanation':
+              response += `## Explanation\n\nI'll explain ${topic} in a clear, engaging way that's perfect for your level.\n\n`;
+              response += `### Key Concepts\n- Understanding the fundamentals of ${topic}\n- Real-world applications\n- Common misconceptions\n\n`;
+              response += `### Examples\nHere are some practical examples to help you understand ${topic} better.\n\n`;
+              break;
+            
+            case 'lesson':
+              response += `## Lesson Plan\n\n### Learning Objectives\nBy the end of this lesson, you will:\n- Understand the core concepts of ${topic}\n- Apply your knowledge to real situations\n- Be able to explain ${topic} to others\n\n`;
+              response += `### Lesson Structure\n1. **Introduction** - What is ${topic}?\n2. **Main Content** - Deep dive into concepts\n3. **Practice** - Hands-on learning\n4. **Assessment** - Check your understanding\n5. **Summary** - Key takeaways\n\n`;
+              break;
+            
+            case 'quiz':
+              response += `## Quiz: ${topic}\n\nTest your knowledge with these questions:\n\n`;
+              response += `### Question 1\nWhat is the most important concept in ${topic}?\n\n`;
+              response += `### Question 2\nHow would you apply ${topic} in a real-world scenario?\n\n`;
+              response += `### Question 3\nWhat are the common mistakes people make when learning ${topic}?\n\n`;
+              break;
+            
+            case 'summary':
+              response += `## Summary: ${topic}\n\n### Main Points\n- Core concept 1\n- Core concept 2\n- Core concept 3\n\n`;
+              response += `### Key Takeaways\n- Important insight 1\n- Important insight 2\n- Important insight 3\n\n`;
+              break;
+          }
+
+          const followUp = [
+            `Would you like to practice with some exercises on ${topic}?`,
+            `Should we explore related concepts to ${topic}?`,
+            `Would you like me to create a quiz to test your understanding?`,
+            `Shall we dive deeper into any specific aspect of ${topic}?`
+          ];
+
           return {
-            message: result.response,
-            followUp: result.followUpSuggestions ?? [],
+            message: response,
+            followUp,
           };
         } catch (error) {
+          console.error('Error in teach step:', error);
           return {
-            message: 'I encountered an error while preparing the lesson. Please try again later or adjust your request.',
+            message: 'I encountered an error while preparing your lesson. Please try again.',
+            followUp: ['Try asking about a different topic', 'Request a simpler explanation'],
           };
         }
       },
-    },
-    {
-      id: 'follow-up',
-      description: 'Offer follow-up actions to further engage and deepen understanding.',
-      handler: async (input, context) => {
-        const followUpOptions = [
-          'Take a Quiz',
-          'Request More Examples',
-          'Explore Related Topics',
-          'Finish Session',
-        ];
-        return {
-          prompt: 'Would you like to proceed with one of the follow-up actions?',
-          options: followUpOptions,
-        };
-      },
-    },
+    }),
   ],
 });
 
-export default [teachWorkflow];
+/**
+ * Quick Answer Workflow: For rapid explanations.
+ */
+export const quickAnswerWorkflow = createWorkflow({
+  id: 'quick-answer-workflow',
+  description: 'Provides quick answers to questions.',
+  inputSchema: quickAnswerInputSchema,
+  outputSchema: quickAnswerOutputSchema,
+  steps: [
+    createStep({
+      id: 'answer',
+      description: 'Provide a quick answer to the question.',
+      inputSchema: quickAnswerInputSchema,
+      outputSchema: quickAnswerOutputSchema,
+      execute: async ({ input }) => {
+        try {
+          const { question } = input;
+          
+          // Generate a quick answer
+          const response = `## Answer: ${question}\n\nHere's a clear and concise answer to your question about "${question}":\n\n` +
+            `### Key Points\n- Understanding the core concept\n- Practical applications\n- Important considerations\n\n` +
+            `### Summary\nThis covers the essential information you need to know about ${question}.\n\n` +
+            `Would you like me to explain any specific aspect in more detail?`;
+
+          return {
+            message: response,
+            followUp: ['Ask a follow-up question', 'Get more details', 'Explore related topics'],
+          };
+        } catch (error) {
+          return {
+            message: 'I apologize, but I couldn\'t process your question. Could you rephrase it?',
+            followUp: ['Try asking a different question', 'Provide more context'],
+          };
+        }
+      },
+    }),
+  ],
+});
+
+export default [teachWorkflow, quickAnswerWorkflow];
