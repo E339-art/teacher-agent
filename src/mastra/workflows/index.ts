@@ -39,9 +39,9 @@ export const teachWorkflow = createWorkflow({
       description: 'Provide educational content about the requested topic.',
       inputSchema: teachInputSchema,
       outputSchema: teachOutputSchema,
-      execute: async ({ input }) => {
+      execute: async ({ inputData }) => {
         try {
-          const { topic, audience, format = 'explanation', goals, difficulty } = input;
+          const { topic, audience, format = 'explanation', goals, difficulty } = inputData;
           
           // Generate educational content
           let response = `# Teaching: ${topic}\n\n`;
@@ -121,9 +121,9 @@ export const quickAnswerWorkflow = createWorkflow({
       description: 'Provide a quick answer to the question.',
       inputSchema: quickAnswerInputSchema,
       outputSchema: quickAnswerOutputSchema,
-      execute: async ({ input }) => {
+      execute: async ({ inputData }) => {
         try {
-          const { question } = input;
+          const { question } = inputData;
           
           // Generate a quick answer
           const response = `## Answer: ${question}\n\nHere's a clear and concise answer to your question about "${question}":\n\n` +
