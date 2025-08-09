@@ -1,29 +1,12 @@
 import { createWorkflow, createStep } from '@mastra/core/workflows';
-import { z } from 'zod';
-
-// Input schemas
-const teachInputSchema = z.object({
-  topic: z.string().describe('The topic to teach about'),
-  audience: z.string().optional().describe('The target audience'),
-  format: z.enum(['explanation', 'lesson', 'quiz', 'summary']).optional().describe('Teaching format'),
-  goals: z.string().optional().describe('Learning goals'),
-  difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional().describe('Difficulty level'),
-});
-
-const quickAnswerInputSchema = z.object({
-  question: z.string().describe('The question to answer'),
-});
-
-// Output schemas
-const teachOutputSchema = z.object({
-  message: z.string().describe('The educational response'),
-  followUp: z.array(z.string()).describe('Follow-up suggestions'),
-});
-
-const quickAnswerOutputSchema = z.object({
-  message: z.string().describe('The answer'),
-  followUp: z.array(z.string()).describe('Follow-up suggestions'),
-});
+import {
+  teachInputSchema,
+  teachOutputSchema,
+  quickAnswerInputSchema,
+  quickAnswerOutputSchema,
+  learningPathInputSchema,
+  learningPathOutputSchema
+} from './validation.js';
 
 /**
  * Simple Teaching Workflow: Provides educational content for any topic.
@@ -39,9 +22,9 @@ export const teachWorkflow = createWorkflow({
       description: 'Provide educational content about the requested topic.',
       inputSchema: teachInputSchema,
       outputSchema: teachOutputSchema,
-      execute: async ({ input }) => {
+      execute: async ({ context }) => {
         try {
-          const { topic, audience, format = 'explanation', goals, difficulty } = input;
+          const { topic, audience, format = 'explanation', goals, difficulty } = context;
           
           // Generate educational content
           let response = `# Teaching: ${topic}\n\n`;
@@ -146,4 +129,29 @@ export const quickAnswerWorkflow = createWorkflow({
   ],
 });
 
-export default [teachWorkflow, quickAnswerWorkflow];
+export const learningPathWorkflow = createWorkflow({
+  id: 'learning-path-workflow',
+  description: 'Creates a structured learning path for a topic.',
+  inputSchema: learningPathInputSchema,
+  outputSchema: learningPathOutputSchema,
+  steps: [
+    createStep({
+      id: 'create-path',
+      description: 'Create a learning path.',
+      inputSchema: learningPathInputSchema,
+      outputSchema: learningPathOutputSchema,
+      execute: async ({ input }) => {
+        const { topic, level } = input;
+        return {
+          path: [
+            { step: 1, title: `Introduction to ${topic}`, description: `Learn the basics of ${topic}.` },
+            { step: 2, title: `Core Concepts of ${topic}`, description: `Dive deeper into the main concepts.` },
+            { step: 3, title: `Advanced Topics in ${topic}`, description: `Explore advanced techniques and applications.` },
+          ],
+        };
+      },
+    }),
+  ],
+});
+
+export default [teachWorkflow, quickAnswerWorkflow, learningPathWorkflow];

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "mastra dev",
     "build": "tsc && mastra build",
-    "test": "mastra test",
+    "pretest": "tsc",
+    "test": "mocha dist/test/**/*.js",
     "start": "mastra start",
     "deploy": "mastra deploy"
   },
@@ -24,6 +25,12 @@
   "devDependencies": {
     "@types/node": "^22.15.29",
     "mastra": "latest",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "chai": "^4.3.7",
+    "@types/chai": "^4.3.5",
+    "mocha": "^10.2.0",
+    "@types/mocha": "^10.0.1",
+    "ts-node": "^10.9.1",
+    "ts-mocha": "^10.0.0"
   }
 }
