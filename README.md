@@ -228,7 +228,7 @@ Enhance `src/mastra/workflows/index.ts` to:
 
 ## 📄 License
 
-ISC License - see LICENSE file for details
+MIT License - see LICENSE file for details
 
 ## 🆘 Support
 

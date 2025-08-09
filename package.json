@@ -18,7 +18,7 @@
     "mastra"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "An intelligent AI teacher agent that provides personalized education across all subjects and skill levels.",
   "type": "module",
   "dependencies": {

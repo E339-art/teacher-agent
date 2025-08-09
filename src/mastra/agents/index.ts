@@ -52,4 +52,16 @@ export const teacherAgent = new Agent({
   `,
   model: google(process.env.MODEL ?? "gemini-2.5-pro"),
   tools: { educationTool },
+  defaultGenerateOptions: async () => ({
+    memory: {
+      resource: 'teacher-agent',
+      thread: 'default',
+      options: {
+        lastMessages: 20,
+        workingMemory: { enabled: true },
+        threads: { generateTitle: false },
+      },
+    },
+    savePerStep: true,
+  }),
 });
