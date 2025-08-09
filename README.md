@@ -56,6 +56,12 @@ An advanced AI-powered teacher agent built with the Mastra framework that provid
    pnpm dev
    ```
 
+4. **Run Built Server (optional)**
+   ```bash
+   pnpm build
+   node --import=./.mastra/output/instrumentation.mjs .mastra/output/index.mjs
+   ```
+
 ### Environment Variables
 
 | Variable | Description | Required |
@@ -65,6 +71,28 @@ An advanced AI-powered teacher agent built with the Mastra framework that provid
 | `MASTRA_CLOUD_API_KEY` | Mastra Cloud API key | ✅ (for deployment) |
 | `MASTRA_CLOUD_PROJECT_ID` | Mastra Cloud project ID | ✅ (for deployment) |
 | `LOG_LEVEL` | Logging level (default: info) | ❌ |
+
+### Local API Examples
+
+- List workflows:
+  ```bash
+  curl http://localhost:4111/api/workflows
+  ```
+
+- Start a workflow run:
+  ```bash
+  curl -X POST http://localhost:4111/api/workflows/teachWorkflow/start
+  # Then inspect runs via:
+  curl http://localhost:4111/api/workflows/teachWorkflow/runs
+  ```
+
+- Generate with the `teacherAgent`:
+  ```bash
+  curl -X POST \
+    http://localhost:4111/api/agents/teacherAgent/generate \
+    -H 'Content-Type: application/json' \
+    -d '{"messages":[{"role":"user","content":"Teach me photosynthesis for a 10-year-old"}]}'
+  ```
 
 ## ☁️ Mastra Cloud Deployment
 
